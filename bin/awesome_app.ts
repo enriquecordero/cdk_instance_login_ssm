@@ -1,21 +1,29 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from '@aws-cdk/core';
-import { AwesomeAppStack } from '../lib/awesome_app-stack';
-
+import { AwesomeNetworkStack } from '../lib/awesome/stacks/network';
+import { AwesomeAppStack } from '../lib/awesome/stacks/app';
+import { AwesomeSecretManagerStack } from '../lib/awesome/stacks/secretManager';
 const app = new cdk.App();
-new AwesomeAppStack(app, 'AwesomeAppStack', {
-  /* If you don't specify 'env', this stack will be environment-agnostic.
-   * Account/Region-dependent features and context lookups will not work,
-   * but a single synthesized template can be deployed anywhere. */
 
-  /* Uncomment the next line to specialize this stack for the AWS Account
-   * and Region that are implied by the current CLI configuration. */
-  // env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
+const org = 'awesome';
+const enviroment = 'dev'
 
-  /* Uncomment the next line if you know exactly what Account and Region you
-   * want to deploy the stack to. */
-  // env: { account: '123456789012', region: 'us-east-1' },
+const props = {
+  org:org,
+  enviroment:enviroment,
+  cidr:'10.1.0.0/16',
+  maxAz:2,
+  env:{
+    account: '913008941063',
+    region: 'us-east-1'
+  },
 
-  /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
-});
+
+}
+
+
+
+const networkStack = new AwesomeNetworkStack(app,`${org}-${enviroment}-network`,props)
+const appStack = new AwesomeAppStack(app,`${org}-${enviroment}-app`,{...props , vpc:networkStack.vpc})
+//const secretManagerStack = new AwesomeSecretManagerStack(app,`${org}-${enviroment}-secretManager`,{...props , vpc:networkStack.vpc} )
